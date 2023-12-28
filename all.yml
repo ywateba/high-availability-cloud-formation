@@ -3,6 +3,7 @@ Parameters:
   EnvironmentName:
     Description: An environment name that will be prefixed to resource names
     Type: String
+    Default: Dev
 
   VpcCIDR: 
     Description: Please enter the IP range (CIDR notation) for this VPC
@@ -108,11 +109,11 @@ Resources:
     Properties: 
       Domain: vpc
 
-  # NatGateway2EIP:
-  #   Type: AWS::EC2::EIP
-  #   DependsOn: InternetGatewayAttachment
-  #   Properties:
-  #     Domain: vpc
+  NatGateway2EIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
 
   NatGateway1: 
     Type: AWS::EC2::NatGateway
@@ -120,11 +121,11 @@ Resources:
       AllocationId: !GetAtt NatGateway1EIP.AllocationId
       SubnetId: !Ref PublicSubnet1
 
-  # NatGateway2: 
-  #   Type: AWS::EC2::NatGateway
-  #   Properties:
-  #     AllocationId: !GetAtt NatGateway2EIP.AllocationId
-  #     SubnetId: !Ref PublicSubnet2
+  NatGateway2: 
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGateway2EIP.AllocationId
+      SubnetId: !Ref PublicSubnet2
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -213,7 +214,7 @@ Resources:
         ToPort: 22
         CidrIp: !Ref VpcCIDR
 
-  WebServersSecurityGroup:
+  WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref VPC
@@ -234,74 +235,38 @@ Resources:
 
 ###############  IAM SETTINGS #######################
 
-  WebServerInstanceRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: web-servers-instance-role"
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: 'Allow'
-          Principal:
-            Service:
-            - 'ec2.amazonaws.com'
-          Action:
-          - 'sts:AssumeRole'
-      Policies:
-        - PolicyName: s3
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-            - Effect: Allow
-              Action:
-              - 's3:PutObject*'
-              - 's3:GetObject*'
-              - 's3:DeleteObject*'
-              Resource:
-                - !Ref SomeBucketArn
-  WebServerInstanceProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Path: '/'
-      Roles:
-      - !Ref WebServerInstanceRole
+  # WebServerInstanceRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     RoleName: web-servers-instance-role"
+  #     AssumeRolePolicyDocument:
+  #       Version: '2012-10-17'
+  #       Statement:
+  #       - Effect: 'Allow'
+  #         Principal:
+  #           Service:
+  #           - 'ec2.amazonaws.com'
+  #         Action:
+  #         - 'sts:AssumeRole'
+  #     Policies:
+  #       - PolicyName: s3
+  #         PolicyDocument:
+  #           Version: '2012-10-17'
+  #           Statement:
+  #           - Effect: Allow
+  #             Action:
+  #             - 's3:PutObject*'
+  #             - 's3:GetObject*'
+  #             - 's3:DeleteObject*'
+  #             Resource:
+  #               - arn:aws:s3:::arydevs-learn
 
-
-############## EC2 SERVERS ##########################
-  WebAppLaunchTemplate:
-    Type: AWS::EC2::LaunchTemplate
-    Properties:
-      LaunchTemplateName: !Sub "web-servers-template"
-      LaunchTemplateData:
-        UserData:
-          Fn::Base64: |
-            #!/bin/bash
-            apt-get update -y
-            sudo apt-get install nginx -y
-            service nginx start
-        ImageId: !Sub ami-0557a15b87f6559cf
-        SecurityGroupIds:
-          - !Ref WebServerSecGroup
-        InstanceType: t2.micro
-        IamInstanceProfile:
-          Name: !Ref WebServerInstanceProfile
-        # BlockDeviceMappings:
-        # - DeviceName: "/dev/sdk"
-        #   Ebs:
-        #     VolumeSize: '50'
-
-  ServersAutoScalingGroup:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    Properties:
-      LaunchTemplate:
-        LaunchTemplateId: !Ref WebAppLaunchTemplate
-      MinSize: 2
-      MaxSize: 4
-      DesiredCapacity: 2
-      VPCZoneIdentifier:
-        - !Ref PrivateSubnet1
-        - !Ref PrivateSubnet2
-
+  # WebServerInstanceProfile:
+  #   Type: AWS::IAM::InstanceProfile
+  #   Properties:
+  #     Path: '/'
+  #     Roles:
+  #     - !Ref WebServerInstanceRole
 
 
 ###################  LOAD BALANCERS ###############################
@@ -317,10 +282,8 @@ Resources:
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 5
-      VpcId: 
-        Fn::ImportValue:
-          Fn::Sub: "${EnvironmentName}-VPCID"
-
+      VpcId: !Ref VPC 
+       
   WebAppLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -328,7 +291,7 @@ Resources:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
       SecurityGroups:
-        - !Ref MySecurityGroup
+        - !Ref WebServerSecurityGroup
       Scheme: internet-facing
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
@@ -389,64 +352,103 @@ Resources:
       ListenerArn: !Ref 'HttpListener'
       Priority: 1
 
+  ############## EC2 SERVERS ##########################
+  WebAppLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: "web-servers-template"
+      LaunchTemplateData:
+        UserData:
+          Fn::Base64: |
+            #!/bin/bash
+            apt-get update -y
+            sudo apt-get install nginx -y
+            service nginx start
+        ImageId: !Sub ami-0557a15b87f6559cf
+        SecurityGroupIds:
+          - !Ref WebServerSecurityGroup
+        InstanceType: t2.micro
+        # IamInstanceProfile:
+        #   Name: !Ref WebServerInstanceProfile
+
+        # BlockDeviceMappings:
+        # - DeviceName: "/dev/sdk"
+        #   Ebs:
+        #     VolumeSize: '50'
+
+  ServersAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref WebAppLaunchTemplate
+        Version: 1
+      MinSize: 2
+      MaxSize: 4
+      DesiredCapacity: 2
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      TargetGroupARNs:
+        - !Ref WebAppTargetGroup
+
 Outputs: 
 
   VPC: 
     Description: A reference to the created VPC
     Value: !Ref VPC
     Export:
-      Name: !Sub ${EnvironmentName}-VPCID
+      Name: Dev-VPCID
 
   VPCPublicRouteTable:
     Description: Public Routing
     Value: !Ref PublicRouteTable
     Export:
-      Name: !Sub ${EnvironmentName}-PUB-RT
+      Name: Dev-PUB-RT
 
   VPCPrivateRouteTable1:
     Description: Private Routing AZ1
     Value: !Ref PrivateRouteTable1
     Export:
-      Name: !Sub ${EnvironmentName}-PRI1-RT
+      Name: Dev-PRI1-RT
 
   VPCPrivateRouteTable2:
     Description: Private Routing AZ2
     Value: !Ref PrivateRouteTable2
     Export:
-      Name: !Sub ${EnvironmentName}-PRI2-RT
+      Name: Dev-PRI2-RT
 
   PublicSubnets:
     Description: A list of the public subnets
     Value: !Join [ ",", [ !Ref PublicSubnet1, !Ref PublicSubnet2 ]]
     Export:
-      Name: !Sub ${EnvironmentName}-PUB-NETS
+      Name: Dev-PUB-NETS
 
   PrivateSubnets:
     Description: A list of the private subnets
     Value: !Join [ ",", [ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]]
     Export:
-      Name: !Sub ${EnvironmentName}-PRIV-NETS
+      Name: Dev-PRIV-NETS
 
   PublicSubnet1:
     Description: A reference to the public subnet in the 1st Availability Zone
     Value: !Ref PublicSubnet1
     Export:
-      Name: !Sub ${EnvironmentName}-PUB1-SN
+      Name: Dev-PUB1-SN
 
   PublicSubnet2: 
     Description: A reference to the public subnet in the 2nd Availability Zone
     Value: !Ref PublicSubnet2
     Export:
-      Name: !Sub ${EnvironmentName}-PUB2-SN
+      Name: Dev-PUB2-SN
 
   PrivateSubnet1:
     Description: A reference to the private subnet in the 1st Availability Zone
     Value: !Ref PrivateSubnet1
     Export:
-      Name: !Sub ${EnvironmentName}-PRI1-SN
+      Name: Dev-PRI1-SN
 
   PrivateSubnet2: 
     Description: A reference to the private subnet in the 2nd Availability Zone
     Value: !Ref PrivateSubnet2
     Export:
-      Name: !Sub ${EnvironmentName}-PRI2-SN
+      Name: Dev-PRI2-SN
