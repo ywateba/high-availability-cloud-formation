@@ -203,7 +203,7 @@ Outputs:
     Description: A reference to the created VPC
     Value: !Ref VPC
     Export:
-      Name: !Sub ${EnvironmentName}-VPCID
+      Name: !Sub ${EnvironmentName}-VPC-ID
 
   VPCPublicRouteTable:
     Description: Public Routing
@@ -215,46 +215,46 @@ Outputs:
     Description: Private Routing AZ1
     Value: !Ref PrivateRouteTable1
     Export:
-      Name: !Sub ${EnvironmentName}-PRI1-RT
+      Name: !Sub ${EnvironmentName}-PRIV-RT-1
 
   VPCPrivateRouteTable2:
     Description: Private Routing AZ2
     Value: !Ref PrivateRouteTable2
     Export:
-      Name: !Sub ${EnvironmentName}-PRI2-RT
+      Name: !Sub ${EnvironmentName}-PRIV-RT-2
 
   PublicSubnets:
     Description: A list of the public subnets
     Value: !Join [ ",", [ !Ref PublicSubnet1, !Ref PublicSubnet2 ]]
     Export:
-      Name: !Sub ${EnvironmentName}-PUB-NETS
+      Name: !Sub ${EnvironmentName}-PUB-SN-ALL
 
   PrivateSubnets:
     Description: A list of the private subnets
     Value: !Join [ ",", [ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]]
     Export:
-      Name: !Sub ${EnvironmentName}-PRIV-NETS
+      Name: !Sub ${EnvironmentName}-PRIV-SN-ALL
 
   PublicSubnet1:
     Description: A reference to the public subnet in the 1st Availability Zone
     Value: !Ref PublicSubnet1
     Export:
-      Name: !Sub ${EnvironmentName}-PUB1-SN
+      Name: !Sub ${EnvironmentName}-PUB-SN-1
 
   PublicSubnet2: 
     Description: A reference to the public subnet in the 2nd Availability Zone
     Value: !Ref PublicSubnet2
     Export:
-      Name: !Sub ${EnvironmentName}-PUB2-SN
+      Name: !Sub ${EnvironmentName}-PUB-SN-2
 
   PrivateSubnet1:
     Description: A reference to the private subnet in the 1st Availability Zone
     Value: !Ref PrivateSubnet1
     Export:
-      Name: !Sub ${EnvironmentName}-PRI1-SN
+      Name: !Sub ${EnvironmentName}-PRIV-SN-1
 
   PrivateSubnet2: 
     Description: A reference to the private subnet in the 2nd Availability Zone
     Value: !Ref PrivateSubnet2
     Export:
-      Name: !Sub ${EnvironmentName}-PRI2-SN
+      Name: !Sub ${EnvironmentName}-PRIV-SN-2
