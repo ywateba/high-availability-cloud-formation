@@ -108,11 +108,11 @@ Resources:
     Properties: 
       Domain: vpc
 
-  NatGateway2EIP:
-    Type: AWS::EC2::EIP
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      Domain: vpc
+  # NatGateway2EIP:
+  #   Type: AWS::EC2::EIP
+  #   DependsOn: InternetGatewayAttachment
+  #   Properties:
+  #     Domain: vpc
 
   NatGateway1: 
     Type: AWS::EC2::NatGateway
@@ -120,11 +120,11 @@ Resources:
       AllocationId: !GetAtt NatGateway1EIP.AllocationId
       SubnetId: !Ref PublicSubnet1
 
-  NatGateway2: 
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt NatGateway2EIP.AllocationId
-      SubnetId: !Ref PublicSubnet2
+  # NatGateway2: 
+  #   Type: AWS::EC2::NatGateway
+  #   Properties:
+  #     AllocationId: !GetAtt NatGateway2EIP.AllocationId
+  #     SubnetId: !Ref PublicSubnet2
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -188,7 +188,7 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable2
       DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NatGateway2
+      NatGatewayId: !Ref NatGateway1
 
   PrivateSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -285,10 +285,10 @@ Resources:
         InstanceType: t2.micro
         IamInstanceProfile:
           Name: !Ref WebServerInstanceProfile
-        BlockDeviceMappings:
-        - DeviceName: "/dev/sdk"
-          Ebs:
-            VolumeSize: '50'
+        # BlockDeviceMappings:
+        # - DeviceName: "/dev/sdk"
+        #   Ebs:
+        #     VolumeSize: '50'
 
   ServersAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -346,36 +346,36 @@ Resources:
       Port: '80'
       Protocol: HTTP
 
-  HttpsListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      DefaultActions:
-      - Type: forward
-        TargetGroupArn:
-          Ref: WebAppTargetGroup
-      LoadBalancerArn:
-        Ref: WebAppLoadBalancer
-      Port: '443'
-      Protocol: HTTPS
-      SslPolicy: ELBSecurityPolicy-2016-08  # Use an appropriate SSL policy
-      Certificates:
-        - CertificateArn: arn:aws:acm:us-east-1:123456789012:certificate/your-ssl-certificate
+  # HttpsListener:
+  #   Type: AWS::ElasticLoadBalancingV2::Listener
+  #   Properties:
+  #     DefaultActions:
+  #     - Type: forward
+  #       TargetGroupArn:
+  #         Ref: WebAppTargetGroup
+  #     LoadBalancerArn:
+  #       Ref: WebAppLoadBalancer
+  #     Port: '443'
+  #     Protocol: HTTPS
+  #     SslPolicy: ELBSecurityPolicy-2016-08  # Use an appropriate SSL policy
+  #     Certificates:
+  #       - CertificateArn: arn:aws:acm:us-east-1:123456789012:certificate/your-ssl-certificate
 
-  HttpToHttpsRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    Properties:
-      Actions:
-        - Type: redirect
-          RedirectConfig:
-            Protocol: HTTPS
-            Port: "443"
-            StatusCode: HTTP_301
-      Conditions:
-        - Field: host-header
-          HostHeaderConfig:
-            Values:
-              - "*"
-      ListenerArn: !Ref HttpListener
+  # HttpToHttpsRule:
+  #   Type: AWS::ElasticLoadBalancingV2::ListenerRule
+  #   Properties:
+  #     Actions:
+  #       - Type: redirect
+  #         RedirectConfig:
+  #           Protocol: HTTPS
+  #           Port: "443"
+  #           StatusCode: HTTP_301
+  #     Conditions:
+  #       - Field: host-header
+  #         HostHeaderConfig:
+  #           Values:
+  #             - "*"
+  #     ListenerArn: !Ref HttpListener
 
   ListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
