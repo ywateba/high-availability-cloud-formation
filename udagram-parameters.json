@@ -1,0 +1,34 @@
+[
+    {
+        "ParameterKey": "EnvironmentName",
+        "ParameterValue": "MyEnvironment"
+    },
+    {
+        "ParameterKey": "VpcID",
+        "ParameterValue": "vpc-1234abcd"
+    },
+    {
+        "ParameterKey": "VpcCIDR",
+        "ParameterValue": "10.0.0.0/16"
+    },
+    {
+        "ParameterKey": "PublicSubnet1",
+        "ParameterValue": "10.0.0.0/24"
+    },
+    {
+        "ParameterKey": "PublicSubnet2",
+        "ParameterValue": "10.0.1.0/24"
+    },
+    {
+        "ParameterKey": "PrivateSubnet1",
+        "ParameterValue": "10.0.2.0/24"
+    },
+    {
+        "ParameterKey": "PrivateSubnet2",
+        "ParameterValue": "10.0.3.0/24"
+    },
+    {
+        "ParameterKey": "ImageId",
+        "ParameterValue": "ami-0557a15b87f6559cf"
+    }
+]

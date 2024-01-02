@@ -16,3 +16,4 @@ chmod +x aws-sso-credential-process
 aws configure set credential_process ${HOME}/.bin/aws-sso-credential-process
 touch ~/.aws/credentials && chmod 600 $_
 #aws configure  --profile default
+

@@ -3,18 +3,25 @@
 STACK=$1
 OPERATION=$2
 
+NETWORK_STACK_NAME="NETWORK"
+UDAGRAM_STACK_NAME="UDAGRAM"
+NETWORK_PARAMETERS_PATH="network-parameters.json"
+UDAGRAM_PARAMETERS_PATH="udagram-parameters.json"
 
-# Function to check and return stack status
-get_stack_status(stack) {
-    aws cloudformation describe-stacks --stack-name $stack --query "Stacks[0].StackStatus" --output text 2>/dev/null
+
+
+# Function to check and return stack status - no waiting
+get_stack_status() {
+    local stack_name =$1
+    aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].StackStatus" --output text 
 }
 
-
-# Function to check stack creation status
-check_stack_status(stack_name) {
+# Function to check and return stack status with waiting
+check_stack_status() {
+    local stack_name = $1
     echo "Checking the status of stack $stack_name..."
     while true; do
-        status=$(aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].StackStatus" --output text)
+        status=$(get_stack_status $stack_name)
         case $status in
         "CREATE_COMPLETE")
             echo "Stack $stack_name created successfully."
@@ -33,27 +40,51 @@ check_stack_status(stack_name) {
 }
 
 
+# Function to get stack outputs in to a file
+get_stack_outputs(){
+    local stack_name = $1
+    local output_path = $2
+    aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].Outputs" > $output_path
+}
+
 
 
 #perform operations on network stack
-handle_network_stack(operation){
-    manage_stack("network",$operation,"network.yml","network-parameters.json")
+handle_network_stack(){
+    local operation = 1$
+    manage_stack $NETWORK_STACK_NAME $operation $NETWORK_STACK_PATH $NETWORK_PARAMETERS_PATH
     # update network paramters for udagram if necessary
-    # if [[ ! "$operation" =~ ^(CREATE|UPDATE)$ ]]; then
-        
-    #     echo "Exporting network stack outputs to JSON file..."
-    #     aws cloudformation describe-stacks --stack-name "network" --query "Stacks[0].Outputs" > udagram-parameters.json
-    # fi
+    if [[ ! "$operation" =~ ^(CREATE|UPDATE)$ ]]; then
+        echo "Exporting network stack outputs to JSON file..."
+        get_stack_outputs $NETWORK_STACK_NAME $UDAGRAM_PARAMETERS_PATH
+    fi
 }
 
-# perform operation on udagram stack
+# Perform operation on udagram stack - create , update or delete
+# Do nothing if network stack does not exist 
 handle_udagram_stack(operation){
-   manage_stack("udagram",$operation,"network-parameters.json")
+    local operation = 1$
+
+    # we check if network stack exists
+    status=$(get_stack_status $NETWORK_STACK_NAME)
+    echo "Current status of the network stack $stack_name: $status"
+
+    if [[ ! "$status" =~ ^(CREATE_COMPLETE|UPDATE_COMPLETE)$ ]]; then
+        manage_stack $UDAGRAM_STACK_NAME $operation $UDAGRAM_STACK_PATH $UDAGRAM_PARAMETERS_PATH
+    elif
+        echo "Make network stack available first"
+    fi
+   
 }
 
-# Function to manage a specific stack
-manage_stack(stackname,operation,stack_file_path,parameters_file_path) {
-    
+# Function to manage a specific stack - create , update or delete
+# w.r.t to stack current status
+manage_stack() {
+    local stack_name = $1
+    local operation = $2
+    local stack_file_path = $3
+    local parameters_file_path = $4
+
     status=$(get_stack_status $stack_name)
     echo "Current status of the stack $stack_name: $status"
 
@@ -89,16 +120,14 @@ manage_stack(stackname,operation,stack_file_path,parameters_file_path) {
 
 
 # Main script starts here
-
-
 if [[ $# -ne 2 ]]; then
-    echo "Usage: $0 [NETWORK|UDAGRAM|BOTH] [CREATE|UPDATE|DESTROY]"
+    echo "Usage: $0 [NETWORK|UDAGRAM|BOTH] [CREATE|UPDATE|DELETE]"
     exit 1
 fi
 
-if [[ ! "$OPERATION" =~ ^(CREATE|UPDATE|DESTROY)$ ]]; then
+if [[ ! "$OPERATION" =~ ^(CREATE|UPDATE|DELETE)$ ]]; then
     echo "Invalid choice for Operation"
-    echo "Usage: $0 [NETWORK|UDAGRAM|BOTH] [CREATE|UPDATE|DESTROY]"
+    echo "Usage: $0 [NETWORK|UDAGRAM|BOTH] [CREATE|UPDATE|DELETE]"
     exit 1
 fi
 

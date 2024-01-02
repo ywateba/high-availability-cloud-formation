@@ -1,14 +1,51 @@
+Parameters:
+    EnvironmentName:
+      Description: An environment name that will be prefixed to resource names
+      Type: String
+
+    VpcID: 
+      Description: Please enter the ID for this VPC
+      Type: String
+      
+
+    VpcCIDR: 
+      Description: Please enter the IP range (CIDR notation) for this VPC
+      Type: String
+      
+
+    PublicSubnet1:
+      Description: Please enter the network address for the public subnet in the first Availability Zone
+      Type: String
+      
+
+    PublicSubnet2:
+      Description: Please enter the network address for the public subnet in the second Availability Zone
+      Type: String
+      
+
+    PrivateSubnet1:
+      Description: Please enter the network address for the private subnet in the first Availability Zone
+      Type: String
+      
+
+    PrivateSubnet2:
+      Description: Please enter the network address for the private subnet in the second Availability Zone
+      Type: String
+      
+
+    ImageId:
+      Description: AMI identifier
+      Type: String
+   
 
 
-
-
-
+Resources:
 
 ######################## Security groups #################
   BastionsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcID
       GroupDescription: Security group for Bastion servers
       SecurityGroupIngress:
       - IpProtocol: tcp
@@ -19,12 +56,12 @@
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
-        CidrIp: !Ref VpcCIDR
+        CidrIp: !Ref VpcIDCIDR
 
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcID
       GroupDescription: Security group for Application servers
       SecurityGroupIngress:
       - IpProtocol: tcp
@@ -86,7 +123,7 @@
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 5
-      VpcId: !Ref VPC 
+      VpcId: !Ref VpcID
        
   WebAppLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
