@@ -1,0 +1,14 @@
+[
+  {
+    "ParameterKey": "AppBucket",
+    "ParameterValue": "yw-uda-bucket"
+  },
+  {
+    "ParameterKey": "IAMRoleARN",
+    "ParameterValue": "arn:aws:iam::470769016866:role/UDAGRAM-WebServerInstanceRole-3S7ZgOwQG228"
+  },
+  {
+    "ParameterKey": "LoadBalancerDNS",
+    "ParameterValue": "UDAGRA-WebAp-DHaDrIwADWzG-309970862.us-east-1.elb.amazonaws.com"
+  }
+]

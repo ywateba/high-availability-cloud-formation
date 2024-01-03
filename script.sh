@@ -10,7 +10,7 @@ UDAGRAM_STACK_NAME="UDAGRAM"
 NETWORK_STACK_PATH="network.yml"
 NETWORK_PARAMETERS_PATH="network-parameters.json"
 NETWORK_OUTPUTS_PATH="network-outputs.json"
-UDAGRAM_STACK_PATH="uda.yml"
+UDAGRAM_STACK_PATH="udagram.yml"
 UDAGRAM_PARAMETERS_PATH="udagram-parameters.json"
 UDAGRAM_OUTPUTS_PATH="udagram-outputs.json"
 
