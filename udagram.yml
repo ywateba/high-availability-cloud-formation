@@ -250,7 +250,7 @@ Resources:
 Outputs: 
     LoadBalancerDNS:
       Description: "The DNS name of the load balancer"
-      Value: !GetAtt WebAppLoadBalancer.DNSName
+      Value: !Join ["", [http://,!GetAtt WebAppLoadBalancer.DNSName]]
 
     AppBucket:
       Description: "S3 Bucket for static content"
