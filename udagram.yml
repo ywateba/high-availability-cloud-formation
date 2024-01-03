@@ -227,13 +227,8 @@ Resources:
           SecurityGroupIds:
             - !Ref WebServerSecurityGroup
           InstanceType: t2.micro
-          # IamInstanceProfile:
-          #   Name: !Ref WebServerInstanceProfile
-
-          # BlockDeviceMappings:
-          # - DeviceName: "/dev/sdk"
-          #   Ebs:
-          #     VolumeSize: '50'
+          IamInstanceProfile:
+            Name: !Ref WebServerInstanceProfile
 
     ServersAutoScalingGroup:
       Type: AWS::AutoScaling::AutoScalingGroup
