@@ -1,0 +1,103 @@
+Parameters:
+    VpcID: 
+      Description: Please enter the ID for this VPC
+      Type: String
+
+    VpcCIDR:
+      Description: Please enter the ID for this VPC
+      Type: String
+      
+    PublicSubnets:
+      Description: Please enter the network address for the public subnet in the second Availability Zone
+      Type: String
+      
+
+    PrivateSubnets:
+      Description: Please enter the network address for the private subnet in the first Availability Zone
+      Type: String
+      
+    ImageId:
+      Description: AMI identifier
+      Type: String
+      Default: ami-0557a15b87f6559cf
+   
+
+Resources:
+
+    AppS3Bucket:
+        Type: AWS::S3::Bucket
+        Properties:
+          BucketName: yw-uda-bucket
+
+
+
+    AppS3BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref AppS3Bucket
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Action:
+                - s3:Get*
+              Effect: "Allow"
+              Resource: 
+                - !Sub "arn:aws:s3:::${AppS3Bucket}"
+                - !Sub "arn:aws:s3:::${AppS3Bucket}/*"
+              Principal: "*"
+
+
+    ###############  IAM SETTINGS #######################
+
+    WebServerInstanceRole:
+      Type: AWS::IAM::Role
+      DependsOn: AppS3Bucket
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service: 'ec2.amazonaws.com'
+            Action: 'sts:AssumeRole'
+
+    AccessS3BucketPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: AccessS3BucketPolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:Get*
+                - s3:List*
+                - s3:PutObject
+              Resource: !Sub "arn:aws:s3:::${AppS3Bucket}/*"
+        Roles:
+          - !Ref WebServerInstanceRole
+
+    WebServerInstanceProfile:
+      Type: AWS::IAM::InstanceProfile
+      Properties:
+        Path: '/'
+        Roles:
+        - !Ref WebServerInstanceRole
+
+
+   
+
+
+Outputs: 
+    # LoadBalancerDNS:
+    #   Description: "The DNS name of the load balancer"
+    #   Value: !GetAtt WebAppLoadBalancer.DNSName
+
+    AppBucket:
+      Description: "S3 Bucket for static content"
+      Value: !Ref AppS3Bucket
+
+    IAMRoleARN:
+      Description: ARN of the IAM Role
+      Value: !GetAtt WebServerInstanceRole.Arn
+   
