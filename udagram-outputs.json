@@ -9,6 +9,6 @@
   },
   {
     "ParameterKey": "LoadBalancerDNS",
-    "ParameterValue": "UDAGRA-WebAp-DHaDrIwADWzG-309970862.us-east-1.elb.amazonaws.com"
+    "ParameterValue": "http://UDAGRA-WebAp-DHaDrIwADWzG-309970862.us-east-1.elb.amazonaws.com"
   }
 ]
