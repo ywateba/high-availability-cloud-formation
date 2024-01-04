@@ -20,9 +20,9 @@ Parameters:
       Description: AMI identifier
       Type: String
       
-    BastionCidrIp:
-      Description: Address ip allowed to access with ssh
-      Type: String
+    # BastionCidrIp:
+    #   Description: Address ip allowed to access with ssh
+    #   Type: String
       
    
 
@@ -51,11 +51,11 @@ Resources:
         VpcId: !Ref VpcID
         GroupDescription: Security group for Application servers
         SecurityGroupIngress:
-        - IpProtocol: tcp # to allow http from inside vpc
+        - IpProtocol: tcp 
           FromPort: 80
           ToPort: 80
-          CidrIp: !Ref VpcCIDR
-        - IpProtocol: ssh  # to allow ssh from inside the vpc
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp  # to allow ssh from inside the vpc
           FromPort: 22
           ToPort: 22
           CidrIp: !Ref VpcCIDR
@@ -64,7 +64,7 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0 # http response can go anywhere. they will be routed on nat gateway to access internet
-        - IpProtocol: ssh
+        - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
           CidrIp: !Ref VpcCIDR

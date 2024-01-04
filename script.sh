@@ -2,8 +2,8 @@
 #set -e
 
 
-STACK=$1
-OPERATION=$2
+STACK=$2
+OPERATION=$1
 
 NETWORK_STACK_NAME="NETWORK"
 UDAGRAM_STACK_NAME="UDAGRAM"
@@ -20,7 +20,7 @@ UDAGRAM_OUTPUTS_PATH="udagram-outputs.json"
 # Function to check and return stack status - no waiting
 get_stack_status() {
     local stack_name=$1
-    aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].StackStatus" --output text 2>/dev/null
+    aws cloudformation describe-stacks --stack-name $stack_name --query "Stacks[0].StackStatus" --output text #2>/dev/null
     
 }
 
@@ -30,7 +30,8 @@ check_stack_status() {
     echo "Checking the status of stack $stack_name..."
     while true; do
         status=$(get_stack_status $stack_name)
-        echo "$status"
+        echo "Current status $status"
+        
         case $status in
             CREATE_COMPLETE|UPDATE_COMPLETE)
                 echo "Stack $stack_name created or updated  successfully."
@@ -41,7 +42,7 @@ check_stack_status() {
                     break
                     ;;
             ROLLBACK_COMPLETE | UPDATE_ROLLBACK_COMPLETE)
-                echo "Stack $stack_name rollback completed successfully."
+                echo "Something went wrong and Stack $stack_name rollback was initiated and completed successfully."
                 break
                 ;;
             
@@ -75,6 +76,7 @@ check_stack_status() {
                 sleep 10
                 ;;
             *)
+                echo "$?"
                 echo "Stack does not exists or has been deleted or unknown error. Check it"
                 break
                 ;;
@@ -91,12 +93,25 @@ get_stack_outputs(){
 }
 
 
-#format outputs and save in to a file
+#format outputs  
 format_outputs(){
-    local stack_name=$1
+    local outputs=$1
+    
+     
+    if [ "$outputs" = "" ]; then
+        echo "Something went wrong. No outputs available"
+    else
+        echo "$outputs" | jq  '[ .[] | {ParameterKey: .OutputKey, ParameterValue: .OutputValue} ]' 
+    fi
+}
+
+
+#save outputs  in to a file
+save_outputs(){
+    local outputs=$1
     local output_path=$2
-    outputs=$(get_stack_outputs $stack_name)
-    echo "$outputs" | jq  '[ .[] | {ParameterKey: .OutputKey, ParameterValue: .OutputValue} ]'  > "$output_path"
+    echo "$outputs"   > $output_path
+   
 }
 
 
@@ -116,13 +131,7 @@ manage_stack() {
         status="NON_EXISTENT"
     fi
 
-    # if [ "$operation" == "CHECK" ]; then
-    #     echo "Status of  $stack_name: $status."
-    #     if [[ "$status" == "CREATE_COMPLETE" ]] || [[ "$status" == "UPDATE_COMPLETE" ]]; then
-    #         echo "Exporting network stack outputs to JSON file..." 
-    #         format_outputs $stack_name $output_path
-    #     fi
-    # fi
+    
     
     case $status in
         "CREATE_COMPLETE" | "UPDATE_COMPLETE")
@@ -159,6 +168,7 @@ manage_stack() {
             fi
             ;;
         *)
+            echo "$?"
             echo "Stack is in state: $status, manual intervention might be required."
             ;;
     esac
@@ -194,10 +204,21 @@ case $OPERATION in
                 echo "Exporting network stack outputs to JSON file..."
 
                 #save network stack outputs formatting them to file
-                format_outputs $NETWORK_STACK_NAME $NETWORK_OUTPUTS_PATH
+                outputs=$(get_stack_outputs $NETWORK_STACK_NAME)
 
-                # update udagram parameters with network outputs
-                jq -s '.[0] + .[1]'  "$UDAGRAM_ORIGINAL_PARAMETERS_PATH" "$NETWORK_OUTPUTS_PATH" > "$UDAGRAM_PARAMETERS_PATH"
+                if [ "$outputs" = "" ]; then
+                    echo "Something went wrong. No outputs available"
+                else
+                    save_outputs "$outputs"  "$NETWORK_OUTPUTS_PATH"
+                    save_outputs "$(format_outputs "$outputs")" "temp.json"
+                    
+                    # update udagram parameters with network outputs
+                    jq -s '.[0] + .[1]'  "$UDAGRAM_ORIGINAL_PARAMETERS_PATH" "temp.json" > "$UDAGRAM_PARAMETERS_PATH"
+                    rm temp.json
+                fi
+                
+
+                
             fi
         fi
         if [[ "$STACK" == "$UDAGRAM_STACK_NAME" ]]; then
@@ -216,8 +237,17 @@ case $OPERATION in
                 echo "creating the UDAGRAM stack"
                 manage_stack "$UDAGRAM_STACK_NAME" "$OPERATION" "$UDAGRAM_STACK_PATH" "$UDAGRAM_PARAMETERS_PATH" "$UDAGRAM_OUTPUTS_PATH"
                 check_stack_status $UDAGRAM_STACK_NAME
-                echo "Exporting UDAGRAM stack outputs to JSON file..."
-                format_outputs $UDAGRAM_STACK_NAME $UDAGRAM_OUTPUTS_PATH
+                
+
+                #save network stack outputs formatting them to file
+                echo "Exporting UDAGRAM stack outputs to JSON file..."             
+                outputs=$(get_stack_outputs $UDAGRAM_STACK_NAME)
+                echo "$outputs"
+                if [ "$outputs" = "" ]; then
+                    echo "Something went wrong. No outputs available"
+                else
+                    save_outputs "$outputs"  "$UDAGRAM_OUTPUTS_PATH"
+                fi
             fi
         fi
         

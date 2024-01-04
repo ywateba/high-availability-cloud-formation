@@ -10,10 +10,38 @@ This guide explains how to deploy two AWS CloudFormation stacks:
 
 The deployment of the Udagram Stack must occur after the successful creation of the Network Stack, as it relies on resources created by the Network Stack.
 
+## Below the APP infratructure architecture 
+
+![UDAGRAM Infratructure Architecture](diagram.png)
+
+
+
+
+The current deployment is reachable at http://udagra-webap-xkxoi1o1mswu-1937440254.us-east-1.elb.amazonaws.com/
+
 ## Prerequisites
 
 - AWS CLI installed and configured with appropriate AWS credentials and default region.
 - Basic understanding of AWS CloudFormation and the resources being created.
+
+## About the script
+
+   The script can perform 4 actions on stacks.
+   - CREATE  : create a stack
+   - UPDATE  : update a stack
+   - DELETE  : delete a stack
+   - CHECK   : check a stack
+
+   And the stacks are :
+   - NETWORK : the network stack 
+   - UDAGRAM . the UDAGRAM stack :
+   
+   Both stacks configuration, parameters and output files are hard coded in the script .
+
+   The udagram-parameters file is updated everytime changes occur on nework stack, with network stack new outputs values and udagram-original-parameters content. The udagram-original-parameters.json file contains only values related to UDAGRAM stack.
+
+   The script requires two arguments to work ACTION and STACK
+   
 
 ## Steps to Deploy Stacks
 
@@ -22,7 +50,7 @@ The deployment of the Udagram Stack must occur after the successful creation of 
 
 1. Run the following command to create the Network Stack:
     ```
-    aws cloudformation create-stack --stack-name network-stack --template-body file://network.yml --parameters file://network-parameters.json
+    ./script.sh CREATE NETWORK
     ```
 2. Wait for the stack creation to complete. This can be monitored in the AWS CloudFormation Console.
 

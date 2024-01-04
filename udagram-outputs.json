@@ -1,14 +1,17 @@
 [
-  {
-    "ParameterKey": "AppBucket",
-    "ParameterValue": "yw-uda-bucket"
-  },
-  {
-    "ParameterKey": "IAMRoleARN",
-    "ParameterValue": "arn:aws:iam::470769016866:role/UDAGRAM-WebServerInstanceRole-3S7ZgOwQG228"
-  },
-  {
-    "ParameterKey": "LoadBalancerDNS",
-    "ParameterValue": "http://UDAGRA-WebAp-DHaDrIwADWzG-309970862.us-east-1.elb.amazonaws.com"
-  }
+    {
+        "OutputKey": "AppBucket",
+        "OutputValue": "yw-uda-bucket",
+        "Description": "S3 Bucket for static content"
+    },
+    {
+        "OutputKey": "IAMRoleARN",
+        "OutputValue": "arn:aws:iam::470769016866:role/UDAGRAM-WebServerInstanceRole-F5ItLfEIuNwp",
+        "Description": "ARN of the IAM Role"
+    },
+    {
+        "OutputKey": "LoadBalancerDNS",
+        "OutputValue": "http://UDAGRA-WebAp-xkxoi1o1MSWu-1937440254.us-east-1.elb.amazonaws.com",
+        "Description": "The DNS name of the load balancer"
+    }
 ]

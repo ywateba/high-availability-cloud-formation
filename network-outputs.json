@@ -1,18 +1,22 @@
 [
-  {
-    "ParameterKey": "PrivateSubnets",
-    "ParameterValue": "subnet-04c2a7d34412ee019,subnet-0a55a671acbd67a8f"
-  },
-  {
-    "ParameterKey": "VpcID",
-    "ParameterValue": "vpc-023a216485e5c8eda"
-  },
-  {
-    "ParameterKey": "VpcCIDR",
-    "ParameterValue": "10.0.0.0/16"
-  },
-  {
-    "ParameterKey": "PublicSubnets",
-    "ParameterValue": "subnet-010c9dfca00dd859c,subnet-0d434d9ede8098bdc"
-  }
+    {
+        "OutputKey": "PrivateSubnets",
+        "OutputValue": "subnet-0d2013bd2e67cc725,subnet-01967043f363e7e79",
+        "Description": "A list of the private subnets"
+    },
+    {
+        "OutputKey": "VpcID",
+        "OutputValue": "vpc-0b0632b797e291802",
+        "Description": "A reference to the created VPC"
+    },
+    {
+        "OutputKey": "VpcCIDR",
+        "OutputValue": "10.0.0.0/16",
+        "Description": "A reference to the created VPC"
+    },
+    {
+        "OutputKey": "PublicSubnets",
+        "OutputValue": "subnet-07224f42049d54b0e,subnet-0741589bfca88b63a",
+        "Description": "A list of the public subnets"
+    }
 ]
