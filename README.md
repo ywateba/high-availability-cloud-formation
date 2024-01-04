@@ -12,12 +12,14 @@ The deployment of the Udagram Stack must occur after the successful creation of 
 
 ## Below the APP infratructure architecture 
 
-![UDAGRAM Infratructure Architecture](diagram.png)
+![UDAGRAM Infratructure Architecture](diagram-updated.png)
 
 
 
 
 The current deployment is reachable at http://udagra-webap-xkxoi1o1mswu-1937440254.us-east-1.elb.amazonaws.com/
+
+Infrastructure was update to use t3.small instance. The use of t2.micro was due to  a confusion from the project requirements page
 
 ## Prerequisites
 
