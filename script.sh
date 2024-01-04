@@ -11,6 +11,7 @@ NETWORK_STACK_PATH="network.yml"
 NETWORK_PARAMETERS_PATH="network-parameters.json"
 NETWORK_OUTPUTS_PATH="network-outputs.json"
 UDAGRAM_STACK_PATH="udagram.yml"
+UDAGRAM_ORIGINAL_PARAMETERS_PATH="udagram-original-parameters.json"
 UDAGRAM_PARAMETERS_PATH="udagram-parameters.json"
 UDAGRAM_OUTPUTS_PATH="udagram-outputs.json"
 
@@ -29,51 +30,54 @@ check_stack_status() {
     echo "Checking the status of stack $stack_name..."
     while true; do
         status=$(get_stack_status $stack_name)
-        
+        echo "$status"
         case $status in
-        "CREATE_COMPLETE | UPDATE_COMPLETE")
-            echo "Stack $stack_name created or updated successfully."
-            break
-            ;;
-        "ROLLBACK_COMPLETE | UPDATE_ROLLBACK_COMPLETE")
-            echo "Stack $stack_name rollback completed successfully."
-            break
-            ;;
-        
-        "CREATE_FAILED | ROLLBACK_FAILED")
-            echo "Stack $stack_name creation or rollback failed."
-            break
-            ;;
+            CREATE_COMPLETE|UPDATE_COMPLETE)
+                echo "Stack $stack_name created or updated  successfully."
+                break
+                ;;
+            DELETE_COMPLETE)
+                echo "Stack $stack_name  deleted successfully."
+                    break
+                    ;;
+            ROLLBACK_COMPLETE | UPDATE_ROLLBACK_COMPLETE)
+                echo "Stack $stack_name rollback completed successfully."
+                break
+                ;;
+            
+            CREATE_FAILED | ROLLBACK_FAILED)
+                echo "Stack $stack_name creation or rollback failed."
+                break
+                ;;
 
-        "UPDATE_ROLLBACK_FAILED")
-            echo "Stack $stack_name could not apply update. rollback  failed."
-            break
-            ;;
-        "DELETE_FAILED")
-            echo "Stack $stack_name deletion failed."
-            break
-            ;;
-        "CREATE_IN_PROGRESS" | "UPDATE_IN_PROGRESS")
-            echo "Creation or update  in progress..."
-            sleep 10
-            ;;
-        "DELETE_IN_PROGRESS")
-            echo "Delete  in progress..."
-            sleep 10
-            ;;
-        "UPDATE_ROLLBACK_IN_PROGRESS | ROLLBACK_IN_PROGRESS")
-            echo "There was some error . Rollback  in progress..."
-            sleep 10
-            ;;
-        "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS | UPDATE_COMPLETE_CLEANUP_IN_PROGRESS")
-            echo "Cleanup in progress ..."
-            sleep 10
-            ;;
-
-        *)
-            echo "Stack does not exists or has been deleted or unknown error. Check it"
-            break
-            ;;
+            UPDATE_ROLLBACK_FAILED)
+                echo "Stack $stack_name could not apply update. rollback  failed."
+                break
+                ;;
+            DELETE_FAILED)
+                echo "Stack $stack_name deletion failed."
+                break
+                ;;
+            CREATE_IN_PROGRESS | UPDATE_IN_PROGRESS)
+                echo "Creation or update  in progress..."
+                sleep 10
+                ;;
+            DELETE_IN_PROGRESS)
+                echo "Delete  in progress..."
+                sleep 10
+                ;;
+            UPDATE_ROLLBACK_IN_PROGRESS | ROLLBACK_IN_PROGRES)
+                echo "There was some error . Rollback  in progress..."
+                sleep 10
+                ;;
+            UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS | UPDATE_COMPLETE_CLEANUP_IN_PROGRESS)
+                echo "Cleanup in progress ..."
+                sleep 10
+                ;;
+            *)
+                echo "Stack does not exists or has been deleted or unknown error. Check it"
+                break
+                ;;
         esac
         
     done
@@ -112,51 +116,51 @@ manage_stack() {
         status="NON_EXISTENT"
     fi
 
-    if [ "$operation" == "CHECK" ]; then
-        echo "Status of  $stack_name: $status."
-        if [[ "$status" == "CREATE_COMPLETE" ]] || [[ "$status" == "UPDATE_COMPLETE" ]]; then
-            echo "Exporting network stack outputs to JSON file..." 
-            format_outputs $stack_name $output_path
-        fi
-    fi
+    # if [ "$operation" == "CHECK" ]; then
+    #     echo "Status of  $stack_name: $status."
+    #     if [[ "$status" == "CREATE_COMPLETE" ]] || [[ "$status" == "UPDATE_COMPLETE" ]]; then
+    #         echo "Exporting network stack outputs to JSON file..." 
+    #         format_outputs $stack_name $output_path
+    #     fi
+    # fi
     
     case $status in
-    "CREATE_COMPLETE" | "UPDATE_COMPLETE")
-        if [ "$operation" == "UPDATE" ]; then
-            echo "Updating stack $stack_name..."
-            aws cloudformation update-stack --stack-name $stack_name \
-                                            --template-body file://$stack_file_path \
-                                            --parameters file://$parameters_file_path \
-                                            --capabilities CAPABILITY_NAMED_IAM
+        "CREATE_COMPLETE" | "UPDATE_COMPLETE")
+            if [ "$operation" == "UPDATE" ]; then
+                echo "Updating stack $stack_name..."
+                aws cloudformation update-stack --stack-name $stack_name \
+                                                --template-body file://$stack_file_path \
+                                                --parameters file://$parameters_file_path \
+                                                --capabilities CAPABILITY_NAMED_IAM
 
-        elif [ "$operation" == "DELETE" ]; then
-            echo "Deleting stack $stack_name..."
-            aws cloudformation delete-stack --stack-name $stack_name
-        else
-            echo "Stack is already created. Choose UPDATE or DELETE."
-        fi
-        ;;
-    "CREATE_IN_PROGRESS" | "UPDATE_IN_PROGRESS")
-        echo "Stack $stack_name is currently in progress. Please wait."
-        ;;
-    "DELETE_IN_PROGRESS")
-        echo "Stack $stack_name is currently being deleted. Please wait."
-        ;;
-    "ROLLBACK_COMPLETE" | "CREATE_FAILED" | "NON_EXISTENT")
-        echo "$operation"
-        if [ "$operation" == "CREATE" ]; then
-            echo "Creating stack $stack_name..."
-            aws cloudformation create-stack --stack-name $stack_name \
-                                            --template-body file://$stack_file_path \
-                                            --parameters file://$parameters_file_path \
-                                            --capabilities CAPABILITY_NAMED_IAM
-        else
-            echo "Stack is in a state that requires manual intervention or does not exist."
-        fi
-        ;;
-    *)
-        echo "Stack is in state: $status, manual intervention might be required."
-        ;;
+            elif [ "$operation" == "DELETE" ]; then
+                echo "Deleting stack $stack_name..."
+                aws cloudformation delete-stack --stack-name $stack_name
+            else
+                echo "Stack is already created. Choose UPDATE or DELETE."
+            fi
+            ;;
+        "CREATE_IN_PROGRESS" | "UPDATE_IN_PROGRESS")
+            echo "Stack $stack_name is currently in progress. Please wait."
+            ;;
+        "DELETE_IN_PROGRESS")
+            echo "Stack $stack_name is currently being deleted. Please wait."
+            ;;
+        "ROLLBACK_COMPLETE" | "CREATE_FAILED" | "NON_EXISTENT")
+            echo "$operation"
+            if [ "$operation" == "CREATE" ]; then
+                echo "Creating stack $stack_name..."
+                aws cloudformation create-stack --stack-name $stack_name \
+                                                --template-body file://$stack_file_path \
+                                                --parameters file://$parameters_file_path \
+                                                --capabilities CAPABILITY_NAMED_IAM
+            else
+                echo "Stack is in a state that requires manual intervention or does not exist."
+            fi
+            ;;
+        *)
+            echo "Stack is in state: $status, manual intervention might be required."
+            ;;
     esac
 }
 
@@ -168,7 +172,7 @@ if [[ $# -ne 2 ]]; then
     exit 1
 fi
 
-if [[ ! "$OPERATION" =~ ^(CREATE|UPDATE|DELETE|CHECK|CONFIG)$ ]]; then
+if [[ ! "$OPERATION" =~ ^(CREATE|UPDATE|DELETE|CHECK)$ ]]; then
     echo "Invalid choice for Operation"
     echo "Usage: $0 [NETWORK|UDAGRAM] [CREATE|UPDATE|DELETE|CHECK]"
     exit 1
@@ -183,7 +187,7 @@ case $OPERATION in
 
             check_stack_status $NETWORK_STACK_NAME
             status=$(get_stack_status $NETWORK_STACK_NAME)
-            
+            echo "$status"
             # update network parameters for udagram if necessary
             if [[ "$status" == "CREATE_COMPLETE" ]] || [[ "$status" == "UPDATE_COMPLETE" ]]; then
                 
@@ -193,7 +197,7 @@ case $OPERATION in
                 format_outputs $NETWORK_STACK_NAME $NETWORK_OUTPUTS_PATH
 
                 # update udagram parameters with network outputs
-                jq -s '[.[] | add] | unique_by(.ParameterKey)' "$NETWORK_OUTPUTS_PATH" "$UDAGRAM_PARAMETERS_PATH" > "$UDAGRAM_PARAMETERS_PATH"
+                jq -s '.[0] + .[1]'  "$UDAGRAM_ORIGINAL_PARAMETERS_PATH" "$NETWORK_OUTPUTS_PATH" > "$UDAGRAM_PARAMETERS_PATH"
             fi
         fi
         if [[ "$STACK" == "$UDAGRAM_STACK_NAME" ]]; then
@@ -255,11 +259,7 @@ case $OPERATION in
         check_stack_status $STACK 
         
     ;;
-    CONFIG)
-        echo "We are updating udagram parameters"
-        jq -s '[.[] | add] | unique_by(.ParameterKey)' "$NETWORK_OUTPUTS_PATH" "$UDAGRAM_OUTPUTS_PATH" > "$$UDAGRAM_OUTPUTS_PATH"
-    ;;
-
+   
     *)
         echo "Invalid operation option. Choose NETWORK, UDAGRAM."
         exit 1

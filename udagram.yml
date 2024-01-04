@@ -29,21 +29,21 @@ Parameters:
 Resources:
 
     ######################## Security groups #################
-    BastionSecurityGroup:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        VpcId: !Ref VpcID
-        GroupDescription: Security group for Bastion servers
-        SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref BastionCidrIp
-        SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref VpcCIDR
+    # BastionSecurityGroup:
+    #   Type: AWS::EC2::SecurityGroup
+    #   Properties:
+    #     VpcId: !Ref VpcID
+    #     GroupDescription: Security group for Bastion servers
+    #     SecurityGroupIngress:
+    #     - IpProtocol: tcp
+    #       FromPort: 22
+    #       ToPort: 22
+    #       CidrIp: !Ref BastionCidrIp
+    #     SecurityGroupEgress:
+    #     - IpProtocol: tcp
+    #       FromPort: 22
+    #       ToPort: 22
+    #       CidrIp: !Ref VpcCIDR
 
     WebServerSecurityGroup:
       Type: AWS::EC2::SecurityGroup
@@ -258,6 +258,19 @@ Resources:
               apt-get update -y
               sudo apt-get install nginx -y
               service nginx start
+
+              cat > /var/www/html/index.html <<EOF
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <title>Welcome to Udagram</title>
+              </head>
+              <body>
+                <h1>it works! Udagram, Udacity</h1>
+                
+              </body>
+              </html>
+              EOF
           ImageId: !Ref ImageId
           SecurityGroupIds:
             - !Ref WebServerSecurityGroup

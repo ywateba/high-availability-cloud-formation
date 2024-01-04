@@ -29,11 +29,6 @@ Parameters:
     Type: String
     Default: 10.0.3.0/24
 
-  ImageId:
-    Description: AMI identifier
-    Type: String
-    Default: ami-0557a15b87f6559cf
-
 Resources:
 
   VPC: 

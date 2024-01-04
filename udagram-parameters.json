@@ -4,8 +4,19 @@
     "ParameterValue": "ami-0557a15b87f6559cf"
   },
   {
-    "ParameterKey": "BastionCidrIp",
-    "ParameterValue": "10.10.3.4/32"
+    "ParameterKey": "PrivateSubnets",
+    "ParameterValue": "subnet-04c2a7d34412ee019,subnet-0a55a671acbd67a8f"
+  },
+  {
+    "ParameterKey": "VpcID",
+    "ParameterValue": "vpc-023a216485e5c8eda"
+  },
+  {
+    "ParameterKey": "VpcCIDR",
+    "ParameterValue": "10.0.0.0/16"
+  },
+  {
+    "ParameterKey": "PublicSubnets",
+    "ParameterValue": "subnet-010c9dfca00dd859c,subnet-0d434d9ede8098bdc"
   }
-  
 ]

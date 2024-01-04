@@ -1,11 +1,11 @@
 [
   {
     "ParameterKey": "PrivateSubnets",
-    "ParameterValue": "subnet-0eebf5db22ff33d21,subnet-0ae41a4c7b01c1d6b"
+    "ParameterValue": "subnet-04c2a7d34412ee019,subnet-0a55a671acbd67a8f"
   },
   {
     "ParameterKey": "VpcID",
-    "ParameterValue": "vpc-088980ffa040d1687"
+    "ParameterValue": "vpc-023a216485e5c8eda"
   },
   {
     "ParameterKey": "VpcCIDR",
@@ -13,6 +13,6 @@
   },
   {
     "ParameterKey": "PublicSubnets",
-    "ParameterValue": "subnet-00b9931230285cefe,subnet-042ebe8787b3c700f"
+    "ParameterValue": "subnet-010c9dfca00dd859c,subnet-0d434d9ede8098bdc"
   }
 ]
