@@ -282,9 +282,15 @@ Resources:
           ImageId: !Ref ImageId
           SecurityGroupIds:
             - !Ref WebServerSecurityGroup
-          InstanceType: t2.micro
+          InstanceType: t3.small
           IamInstanceProfile:
             Name: !Ref WebServerInstanceProfile
+          BlockDeviceMappings:
+            - DeviceName: "/dev/sda1"  # The device name may vary based on the instance type and OS
+              Ebs:
+                VolumeSize: 10  # Size in GB
+                VolumeType: "gp2"  # General Purpose SSD
+                DeleteOnTermination: true
 
     ServersAutoScalingGroup:
       Type: AWS::AutoScaling::AutoScalingGroup
