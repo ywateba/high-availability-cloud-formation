@@ -19,7 +19,12 @@ Parameters:
     ImageId:
       Description: AMI identifier
       Type: String
-      Default: ami-0557a15b87f6559cf
+      
+
+    BastionCidrIp:
+      Description: Address ip allowed to access with ssh
+      Type: String
+      
    
 
 Resources:
@@ -34,7 +39,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref BastionCidrIp
         SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 22
@@ -47,15 +52,23 @@ Resources:
         VpcId: !Ref VpcID
         GroupDescription: Security group for Application servers
         SecurityGroupIngress:
+        - IpProtocol: tcp # to allow http from inside vpc
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref VpcCIDR
+        - IpProtocol: ssh  # to allow ssh from inside the vpc
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref VpcCIDR
+        SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
-        SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          CidrIp: 0.0.0.0/0
+          CidrIp: 0.0.0.0/0 # http response can go anywhere. they will be routed on nat gateway to access internet
+        - IpProtocol: ssh
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref VpcCIDR
 
     ##############  S3 ###################################
 
@@ -212,6 +225,23 @@ Resources:
         Priority: 1
 
     ############## EC2 SERVERS ##########################
+
+     # WebServerKeyPair:
+    #     Type: 'AWS::EC2::KeyPair'
+    #     Properties:
+    #       KeyName: WebServerKeyPair
+
+    # BastionKeyPair:
+    #     Type: 'AWS::EC2::KeyPair'
+    #     Properties:
+    #       KeyName: BastionKeyPair
+          
+    # BastionServer:
+    #     Type: AWS::EC2::Instance
+    #     Properties:
+    #       ImageId: !Ref ImageId  
+    #       InstanceType: t2.micro
+    #       KeyName: !Ref BastionKeyPair
     WebAppLaunchTemplate:
       Type: AWS::EC2::LaunchTemplate
       Properties:
@@ -259,4 +289,8 @@ Outputs:
     IAMRoleARN:
       Description: ARN of the IAM Role
       Value: !GetAtt WebServerInstanceRole.Arn
+    
+    # BastionPublicIP:
+    #   Description: "Public IP address of the EC2 instance"
+    #   Value: !GetAtt BastionServer.PublicIp
    

@@ -31,12 +31,26 @@ check_stack_status() {
         status=$(get_stack_status $stack_name)
         
         case $status in
-        "CREATE_COMPLETE")
-            echo "Stack $stack_name created successfully."
+        "CREATE_COMPLETE | UPDATE_COMPLETE")
+            echo "Stack $stack_name created or updated successfully."
             break
             ;;
-        "ROLLBACK_COMPLETE" | "CREATE_FAILED")
-            echo "Stack $stack_name creation failed."
+        "ROLLBACK_COMPLETE | UPDATE_ROLLBACK_COMPLETE")
+            echo "Stack $stack_name rollback completed successfully."
+            break
+            ;;
+        
+        "CREATE_FAILED | ROLLBACK_FAILED")
+            echo "Stack $stack_name creation or rollback failed."
+            break
+            ;;
+
+        "UPDATE_ROLLBACK_FAILED")
+            echo "Stack $stack_name could not apply update. rollback  failed."
+            break
+            ;;
+        "DELETE_FAILED")
+            echo "Stack $stack_name deletion failed."
             break
             ;;
         "CREATE_IN_PROGRESS" | "UPDATE_IN_PROGRESS")
@@ -47,9 +61,17 @@ check_stack_status() {
             echo "Delete  in progress..."
             sleep 10
             ;;
+        "UPDATE_ROLLBACK_IN_PROGRESS | ROLLBACK_IN_PROGRESS")
+            echo "There was some error . Rollback  in progress..."
+            sleep 10
+            ;;
+        "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS | UPDATE_COMPLETE_CLEANUP_IN_PROGRESS")
+            echo "Cleanup in progress ..."
+            sleep 10
+            ;;
 
         *)
-            echo "Stack does not exists or has been deleted"
+            echo "Stack does not exists or has been deleted or unknown error. Check it"
             break
             ;;
         esac
@@ -114,7 +136,7 @@ manage_stack() {
             echo "Stack is already created. Choose UPDATE or DELETE."
         fi
         ;;
-    "CREATE_IN_PROGRESS" | "UPDATE_IN_PROGRESS" | "DELETE_IN_PROGRESS")
+    "CREATE_IN_PROGRESS" | "UPDATE_IN_PROGRESS")
         echo "Stack $stack_name is currently in progress. Please wait."
         ;;
     "DELETE_IN_PROGRESS")
@@ -146,7 +168,7 @@ if [[ $# -ne 2 ]]; then
     exit 1
 fi
 
-if [[ ! "$OPERATION" =~ ^(CREATE|UPDATE|DELETE|CHECK)$ ]]; then
+if [[ ! "$OPERATION" =~ ^(CREATE|UPDATE|DELETE|CHECK|CONFIG)$ ]]; then
     echo "Invalid choice for Operation"
     echo "Usage: $0 [NETWORK|UDAGRAM] [CREATE|UPDATE|DELETE|CHECK]"
     exit 1
@@ -166,7 +188,12 @@ case $OPERATION in
             if [[ "$status" == "CREATE_COMPLETE" ]] || [[ "$status" == "UPDATE_COMPLETE" ]]; then
                 
                 echo "Exporting network stack outputs to JSON file..."
+
+                #save network stack outputs formatting them to file
                 format_outputs $NETWORK_STACK_NAME $NETWORK_OUTPUTS_PATH
+
+                # update udagram parameters with network outputs
+                jq -s '[.[] | add] | unique_by(.ParameterKey)' "$NETWORK_OUTPUTS_PATH" "$UDAGRAM_PARAMETERS_PATH" > "$UDAGRAM_PARAMETERS_PATH"
             fi
         fi
         if [[ "$STACK" == "$UDAGRAM_STACK_NAME" ]]; then
@@ -226,10 +253,15 @@ case $OPERATION in
     CHECK)
         echo "We are checking stack $STACK"
         check_stack_status $STACK 
+        
+    ;;
+    CONFIG)
+        echo "We are updating udagram parameters"
+        jq -s '[.[] | add] | unique_by(.ParameterKey)' "$NETWORK_OUTPUTS_PATH" "$UDAGRAM_OUTPUTS_PATH" > "$$UDAGRAM_OUTPUTS_PATH"
     ;;
 
     *)
-        echo "Invalid stack option. Choose NETWORK, UDAGRAM."
+        echo "Invalid operation option. Choose NETWORK, UDAGRAM."
         exit 1
         ;;
 esac

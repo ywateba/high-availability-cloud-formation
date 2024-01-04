@@ -1,18 +1,11 @@
 [
   {
-    "ParameterKey": "PrivateSubnets",
-    "ParameterValue": "subnet-0eebf5db22ff33d21,subnet-0ae41a4c7b01c1d6b"
+    "ParameterKey": "ImageId",
+    "ParameterValue": "ami-0557a15b87f6559cf"
   },
   {
-    "ParameterKey": "VpcID",
-    "ParameterValue": "vpc-088980ffa040d1687"
-  },
-  {
-    "ParameterKey": "VpcCIDR",
-    "ParameterValue": "10.0.0.0/16"
-  },
-  {
-    "ParameterKey": "PublicSubnets",
-    "ParameterValue": "subnet-00b9931230285cefe,subnet-042ebe8787b3c700f"
+    "ParameterKey": "BastionCidrIp",
+    "ParameterValue": "10.10.3.4/32"
   }
+  
 ]
