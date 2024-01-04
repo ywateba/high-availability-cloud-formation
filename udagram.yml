@@ -20,6 +20,11 @@ Parameters:
       Description: AMI identifier
       Type: String
       Default: ami-0557a15b87f6559cf
+
+    HomeCIDR:
+      Description: Home Ip address
+      Type: String
+      Default: xxx.xxx.xxx.xxx
    
 
 Resources:
@@ -34,7 +39,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref HomeCIDR
         SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 22
@@ -50,12 +55,20 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref VpcCIDR
+        - IpProtocol: ssh
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref VpcCIDR
         SecurityGroupEgress:
         - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
+          FromPort: 80
+          ToPort: 80
           CidrIp: 0.0.0.0/0
+        - IpProtocol: ssh
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref VpcCIDR
 
     ##############  S3 ###################################
 
@@ -212,6 +225,23 @@ Resources:
         Priority: 1
 
     ############## EC2 SERVERS ##########################
+    # WebServerKeyPair:
+    #     Type: 'AWS::EC2::KeyPair'
+    #     Properties:
+    #       KeyName: WebServerKeyPair
+
+    # BastionKeyPair:
+    #     Type: 'AWS::EC2::KeyPair'
+    #     Properties:
+    #       KeyName: BastionKeyPair
+          
+    # BastionServer:
+    #     Type: AWS::EC2::Instance
+    #     Properties:
+    #       ImageId: !Ref ImageId  
+    #       InstanceType: t2.micro
+    #       KeyName: !Ref KeyPairName
+          
     WebAppLaunchTemplate:
       Type: AWS::EC2::LaunchTemplate
       Properties:
@@ -244,6 +274,10 @@ Resources:
           - !Select [1, !Split [",", !Ref PrivateSubnets]]
         TargetGroupARNs:
           - !Ref WebAppTargetGroup
+
+
+    
+    
 
 
 
