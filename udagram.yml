@@ -45,6 +45,22 @@ Resources:
     #       ToPort: 22
     #       CidrIp: !Ref VpcCIDR
 
+    LoadBalancerSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        VpcId: !Ref VpcID
+        GroupDescription: Security group for Load Balancer
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 80
+            ToPort: 80
+            CidrIp: 0.0.0.0/0  # Allow HTTP traffic from anywhere
+        SecurityGroupEgress:
+          - IpProtocol: tcp   
+            FromPort: 80
+            ToPort: 80
+            CidrIp: 0.0.0.0/0
+
     WebServerSecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
@@ -54,20 +70,12 @@ Resources:
         - IpProtocol: tcp 
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp  # to allow ssh from inside the vpc
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref VpcCIDR
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
         SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0 # http response can go anywhere. they will be routed on nat gateway to access internet
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref VpcCIDR
+          CidrIp: 0.0.0.0/0   #http response can go anywhere. they will be routed on nat gateway to access internet
 
     ##############  S3 ###################################
 
@@ -162,7 +170,7 @@ Resources:
           - !Select [0, !Split [",", !Ref PublicSubnets]]
           - !Select [1, !Split [",", !Ref PublicSubnets]]
         SecurityGroups:
-          - !Ref WebServerSecurityGroup
+          - !Ref LoadBalancerSecurityGroup
         Scheme: internet-facing
         LoadBalancerAttributes:
           - Key: idle_timeout.timeout_seconds
