@@ -226,7 +226,7 @@ Resources:
 
     ############## EC2 SERVERS ##########################
 
-     # WebServerKeyPair:
+    # WebServerKeyPair:
     #     Type: 'AWS::EC2::KeyPair'
     #     Properties:
     #       KeyName: WebServerKeyPair
@@ -242,6 +242,8 @@ Resources:
     #       ImageId: !Ref ImageId  
     #       InstanceType: t2.micro
     #       KeyName: !Ref BastionKeyPair
+
+
     WebAppLaunchTemplate:
       Type: AWS::EC2::LaunchTemplate
       Properties:
@@ -274,7 +276,6 @@ Resources:
           - !Select [1, !Split [",", !Ref PrivateSubnets]]
         TargetGroupARNs:
           - !Ref WebAppTargetGroup
-
 
 
 Outputs: 
