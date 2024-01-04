@@ -54,23 +54,50 @@ The current deployment is reachable at http://udagra-webap-xkxoi1o1mswu-19374402
     ```
 2. Wait for the stack creation to complete. This can be monitored in the AWS CloudFormation Console.
 
+    
+
 ### Step 2: Deploy the Udagram Stack
 
 1. Ensure that the Network Stack is in `CREATE_COMPLETE` status.
-2. Navigate to the directory where `udagram.yml` is located.
-3. Run the following command to create the Udagram Stack:
+2. Run the following command to create the Udagram Stack:
+   ```
+    ./script.sh CREATE UDAGRAM
     ```
-    aws cloudformation create-stack --stack-name udagram --template-body file://udagram.yml
-    ```
-4. Monitor the stack creation in the AWS CloudFormation Console.
+2. Monitor the stack creation in the AWS CloudFormation Console.
 
 ## Post-Deployment
 
 After both stacks are successfully created, validate the resources in the AWS Management Console. Ensure that the EC2 instances in the Udagram Stack are correctly configured and can communicate within the network established by the Network Stack.
 
+## Update and Delete
+    Both stack can be updated using. 
+    ```
+    ./script.sh UPDATE [STACK_NAME]
+    ```
+    and deleted by running:
+
+    ```
+    ./script.sh DELETE [STACK_NAME]
+    ```
+
+    Be aware that UDAGRAM stack depends on NETWORK stack.Updating the network stack while the udagram stack is active will cause issues. 
+
+    Deleting the network stack will also delete the UDAGRAM Stack.
+
+## Status check
+
+  You can check the status of a stack by running :
+
+    ```
+    ./script.sh CHECK [STACK_NAME]
+    ```
+    
 ## Troubleshooting
 
 If stack creation fails, refer to the `Events` tab in the AWS CloudFormation Console for the specific stack. This tab provides detailed error messages that can help in troubleshooting.
+
+
+
 
 ## Additional Resources
 
