@@ -20,7 +20,6 @@ Parameters:
       Description: AMI identifier
       Type: String
       
-
     BastionCidrIp:
       Description: Address ip allowed to access with ssh
       Type: String
@@ -30,7 +29,7 @@ Parameters:
 Resources:
 
     ######################## Security groups #################
-    BastionsSecurityGroup:
+    BastionSecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
         VpcId: !Ref VpcID
@@ -242,6 +241,10 @@ Resources:
     #       ImageId: !Ref ImageId  
     #       InstanceType: t2.micro
     #       KeyName: !Ref BastionKeyPair
+    #       SubnetId: !Select [0, !Split [",", !Ref PublicSubnets]]
+    #       SecurityGroupIds:
+    #       - !Ref BastionSecurityGroup
+    
 
 
     WebAppLaunchTemplate:
