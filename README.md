@@ -12,14 +12,9 @@ The deployment of the Udagram Stack must occur after the successful creation of 
 
 ## Below the APP infratructure architecture 
 
-![UDAGRAM Infratructure Architecture](diagram-updated.png)
+![UDAGRAM Infratructure Architecture](diagram.png)
 
 
-
-
-The current deployment is reachable at http://udagra-webap-xkxoi1o1mswu-1937440254.us-east-1.elb.amazonaws.com/
-
-Infrastructure was update to use t3.small instance. The use of t2.micro was due to  a confusion from the project requirements page
 
 ## Prerequisites
 
@@ -40,7 +35,7 @@ Infrastructure was update to use t3.small instance. The use of t2.micro was due 
    
    Both stacks configuration, parameters and output files are hard coded in the script .
 
-   The udagram-parameters file is updated everytime changes occur on nework stack, with network stack new outputs values and udagram-original-parameters content. The udagram-original-parameters.json file contains only values related to UDAGRAM stack.
+   The udagram-parameters file is updated everytime changes occur on network stack, with network stack new outputs values and udagram-original-parameters content. The udagram-original-parameters.json file contains only values related to UDAGRAM stack.
 
    The script requires two arguments to work ACTION and STACK
    

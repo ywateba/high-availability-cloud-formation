@@ -7,13 +7,13 @@ OPERATION=$1
 
 NETWORK_STACK_NAME="NETWORK"
 UDAGRAM_STACK_NAME="UDAGRAM"
-NETWORK_STACK_PATH="network.yml"
-NETWORK_PARAMETERS_PATH="network-parameters.json"
-NETWORK_OUTPUTS_PATH="network-outputs.json"
-UDAGRAM_STACK_PATH="udagram.yml"
-UDAGRAM_ORIGINAL_PARAMETERS_PATH="udagram-original-parameters.json"
-UDAGRAM_PARAMETERS_PATH="udagram-parameters.json"
-UDAGRAM_OUTPUTS_PATH="udagram-outputs.json"
+NETWORK_STACK_PATH="./network/network.yml"
+NETWORK_PARAMETERS_PATH="./network/network-parameters.json"
+NETWORK_OUTPUTS_PATH="./network/network-outputs.json"
+UDAGRAM_STACK_PATH="./app/udagram.yml"
+UDAGRAM_ORIGINAL_PARAMETERS_PATH="./app/udagram-original-parameters.json"
+UDAGRAM_PARAMETERS_PATH="./app/udagram-parameters.json"
+UDAGRAM_OUTPUTS_PATH="./app/udagram-outputs.json"
 
 
 
